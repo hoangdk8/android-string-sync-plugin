@@ -5,10 +5,10 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Plugin Đồng Bộ String Android</name>
+    <name>Android String Sync (Đồng Bộ String)</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.atu.com">ATU</vendor>
+    <vendor email="hoangdklk@gmail.com">C2H5OH</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
@@ -24,7 +24,7 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.atu.tools.stringsync.services.StringSyncSettingsService"/>
-        <notificationGroup id="Đồng bộ String" displayType="BALLOON"/>
+        <notificationGroup id="android.string.sync.notifications" displayType="BALLOON"/>
         <toolWindow id="Thêm String"
                     icon="/META-INF/pluginIcon.svg"
                     anchor="right"
