@@ -10,6 +10,7 @@ import com.atu.tools.stringsync.services.StringSyncService
 import com.atu.tools.stringsync.services.StringSyncSettingsService
 import com.atu.tools.stringsync.util.KeyParser
 import com.atu.tools.stringsync.util.NotificationUtils
+import com.atu.tools.stringsync.util.SupportedLanguages
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.service
@@ -48,7 +49,7 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
     private val root = JPanel(BorderLayout())
 
     init {
-        title = "String Sync from Google Sheet"
+        title = "Đồng bộ String từ Google Sheet"
         keysPanel.setText(settings.state.lastKeys)
         runCatching {
             modeCombo.selectedItem = SyncMode.valueOf(settings.state.lastMode)
@@ -59,23 +60,23 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
 
         val top = JPanel(GridLayout(2, 1, 8, 8))
         val sourcePanel = JPanel()
-        sourcePanel.border = BorderFactory.createTitledBorder("Sheet Source")
+        sourcePanel.border = BorderFactory.createTitledBorder("Nguồn dữ liệu từ Sheet")
         urlField.columns = 70
 
-        val testButton = JButton("Test Connection")
-        val loadButton = JButton("Load Languages")
+        val testButton = JButton("Kiểm tra kết nối")
+        val loadButton = JButton("Tải ngôn ngữ")
 
         testButton.addActionListener { loadPayload(testOnly = true) }
         loadButton.addActionListener { loadPayload(testOnly = false) }
 
-        sourcePanel.add(JBLabel("Google Apps Script URL:"))
+        sourcePanel.add(JBLabel("URL Google Apps Script:"))
         sourcePanel.add(urlField)
         sourcePanel.add(testButton)
         sourcePanel.add(loadButton)
 
         val modePanel = JPanel()
-        modePanel.border = BorderFactory.createTitledBorder("Sync Mode")
-        modePanel.add(JBLabel("Mode:"))
+        modePanel.border = BorderFactory.createTitledBorder("Chế độ đồng bộ")
+        modePanel.add(JBLabel("Chế độ:"))
         modePanel.add(modeCombo)
 
         top.add(sourcePanel)
@@ -83,15 +84,15 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
 
         val center = JPanel(GridLayout(1, 3, 8, 8))
         val wrappedModules = JPanel(BorderLayout())
-        wrappedModules.border = BorderFactory.createTitledBorder("Source Modules")
+        wrappedModules.border = BorderFactory.createTitledBorder("Module nguồn")
         wrappedModules.add(modulePanel, BorderLayout.CENTER)
 
         val wrappedLanguages = JPanel(BorderLayout())
-        wrappedLanguages.border = BorderFactory.createTitledBorder("Language Selection")
+        wrappedLanguages.border = BorderFactory.createTitledBorder("Ngôn ngữ đích")
         wrappedLanguages.add(languagePanel, BorderLayout.CENTER)
 
         val wrappedKeys = JPanel(BorderLayout())
-        wrappedKeys.border = BorderFactory.createTitledBorder("Keys Input")
+        wrappedKeys.border = BorderFactory.createTitledBorder("Danh sách key")
         wrappedKeys.add(keysPanel, BorderLayout.CENTER)
 
         center.add(wrappedModules)
@@ -102,21 +103,24 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
         root.add(center, BorderLayout.CENTER)
 
         init()
+        languagePanel.setLanguages(SupportedLanguages.all)
         detectModules()
         if (settings.state.lastSelectedLocales.isNotBlank()) {
             languagePanel.setSelectedLocales(settings.state.lastSelectedLocales.split(',').map { it.trim() }.toSet())
+        } else {
+            detectExistingLocales()
         }
     }
 
     override fun createCenterPanel(): JComponent = root
 
     override fun createActions(): Array<javax.swing.Action> {
-        val previewAction = object : DialogWrapperAction("Preview Changes") {
+        val previewAction = object : DialogWrapperAction("Xem trước thay đổi") {
             override fun doAction(e: java.awt.event.ActionEvent?) {
                 runSync(previewOnly = true)
             }
         }
-        val applyAction = object : DialogWrapperAction("Apply") {
+        val applyAction = object : DialogWrapperAction("Áp dụng") {
             override fun doAction(e: java.awt.event.ActionEvent?) {
                 runSync(previewOnly = false)
             }
@@ -130,38 +134,35 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
     }
 
     private fun detectExistingLocales() {
-        languagePanel.setSelectedLocales(modulePanel.existingLocalesOfSelection())
+        languagePanel.setSelectedLocales(SupportedLanguages.defaultSelectedCodes(modulePanel.existingLocalesOfSelection()))
     }
 
     private fun loadPayload(testOnly: Boolean) {
         val url = urlField.text.trim()
         if (url.isBlank()) {
-            setErrorText("URL is required")
+            setErrorText("Vui lòng nhập URL")
             return
         }
         if (!url.endsWith("/exec")) {
-            setErrorText("URL must end with /exec")
+            setErrorText("URL phải kết thúc bằng /exec")
             return
         }
 
         setErrorText(null)
-        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Loading sheet payload", true) {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Đang tải dữ liệu từ sheet", true) {
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val loaded = sheetApiClient.fetch(url)
                     ApplicationManager.getApplication().invokeLater {
                         payload = loaded
                         settings.state.lastUrl = url
-                        if (!testOnly) {
-                            languagePanel.setLanguages(loaded.locales().toList())
-                            detectExistingLocales()
-                        }
-                        NotificationUtils.info(project, "String Sync", "Connection OK. Loaded ${loaded.locales().size} locales")
+                        if (!testOnly) detectExistingLocales()
+                        NotificationUtils.info(project, "Đồng bộ String", "Kết nối thành công. Đã tải ${loaded.locales().size} ngôn ngữ.")
                     }
                 } catch (t: Throwable) {
                     ApplicationManager.getApplication().invokeLater {
-                        setErrorText("Failed to load sheet: ${t.message}")
-                        NotificationUtils.error(project, "String Sync", "Failed to load sheet: ${t.message}")
+                        setErrorText("Không tải được sheet: ${t.message}")
+                        NotificationUtils.error(project, "Đồng bộ String", "Không tải được sheet: ${t.message}")
                     }
                 }
             }
@@ -171,24 +172,24 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
     private fun runSync(previewOnly: Boolean) {
         val localPayload = payload
         if (localPayload == null) {
-            setErrorText("Please load sheet data first")
+            setErrorText("Vui lòng tải dữ liệu sheet trước")
             return
         }
 
         val modules = modulePanel.selectedModules()
         if (modules.isEmpty()) {
-            setErrorText("Please select at least one module")
+            setErrorText("Vui lòng chọn ít nhất 1 module")
             return
         }
 
         val locales = languagePanel.selectedLocales()
         if (locales.isEmpty()) {
-            setErrorText("Please select at least one target language")
+            setErrorText("Vui lòng chọn ít nhất 1 ngôn ngữ đích")
             return
         }
 
         val keys = KeyParser.parse(keysPanel.text())
-        val selectedMode = if (previewOnly) SyncMode.PREVIEW_ONLY else (modeCombo.selectedItem as? SyncMode ?: SyncMode.ADD_OR_UPDATE)
+        val selectedMode = modeCombo.selectedItem as? SyncMode ?: SyncMode.UPDATE_ALL
 
         val request = SyncRequest(
             sourceUrl = urlField.text.trim(),
@@ -199,11 +200,11 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
             payload = localPayload
         )
 
-        settings.state.lastMode = (modeCombo.selectedItem as? SyncMode ?: SyncMode.ADD_OR_UPDATE).name
+        settings.state.lastMode = (modeCombo.selectedItem as? SyncMode ?: SyncMode.UPDATE_ALL).name
         settings.state.lastKeys = keysPanel.text()
         settings.state.lastSelectedLocales = locales.joinToString(",")
 
-        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Running String Sync", true) {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Đang đồng bộ string", true) {
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val result = if (previewOnly) {
@@ -218,15 +219,15 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
 
                     ApplicationManager.getApplication().invokeLater {
                         PreviewChangesDialog(result.changes).show()
-                        val summary = "Files: ${result.filesChanged}, Added: ${result.keysAdded}, Updated: ${result.keysUpdated}, Skipped: ${result.skipped}, Errors: ${result.errors.size}"
+                        val summary = "File thay đổi: ${result.filesChanged}, Thêm mới: ${result.keysAdded}, Cập nhật: ${result.keysUpdated}, Bỏ qua: ${result.skipped}, Lỗi: ${result.errors.size}"
                         if (!previewOnly) {
-                            NotificationUtils.info(project, "String Sync applied", summary)
+                            NotificationUtils.info(project, "Áp dụng đồng bộ thành công", summary)
                         }
                     }
                 } catch (t: Throwable) {
                     ApplicationManager.getApplication().invokeLater {
-                        setErrorText("Sync failed: ${t.message}")
-                        NotificationUtils.error(project, "String Sync", "Sync failed: ${t.message}")
+                        setErrorText("Đồng bộ thất bại: ${t.message}")
+                        NotificationUtils.error(project, "Đồng bộ String", "Đồng bộ thất bại: ${t.message}")
                     }
                 }
             }

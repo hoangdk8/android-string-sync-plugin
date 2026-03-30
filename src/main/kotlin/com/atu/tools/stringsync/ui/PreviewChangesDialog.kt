@@ -14,9 +14,9 @@ class PreviewChangesDialog(changes: List<FileChangePreview>) : DialogWrapper(tru
     private val panel = JPanel(BorderLayout())
 
     init {
-        title = "String Sync Preview"
+        title = "Xem trước thay đổi String"
         val model = DefaultTableModel(
-            arrayOf("Module", "Locale", "Key", "Action", "Old", "New", "File", "Message"),
+            arrayOf("Module", "Ngôn ngữ", "Key", "Hành động", "Giá trị cũ", "Giá trị mới", "File", "Ghi chú"),
             0
         )
         for (change in changes) {
@@ -25,7 +25,7 @@ class PreviewChangesDialog(changes: List<FileChangePreview>) : DialogWrapper(tru
                     change.moduleName,
                     change.locale,
                     change.key,
-                    change.action.name,
+                    change.action.label,
                     change.oldValue ?: "",
                     change.newValue ?: "",
                     change.filePath,

@@ -5,7 +5,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.project.Project
 
 object NotificationUtils {
-    private const val GROUP_ID = "String Sync"
+    private const val GROUP_ID = "Đồng bộ String"
 
     fun info(project: Project, title: String, content: String) {
         Notifications.Bus.notify(

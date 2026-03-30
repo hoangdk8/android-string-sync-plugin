@@ -10,9 +10,9 @@ class KeysInputPanel : JPanel(BorderLayout()) {
     private val textArea = JBTextArea(8, 40)
 
     init {
-        textArea.emptyText.text = "Paste keys (comma/newline separated). Leave empty to sync all keys from sheet"
+        textArea.emptyText.text = "Dán danh sách key (cách nhau bằng dấu phẩy hoặc xuống dòng). Để trống để đồng bộ toàn bộ key từ sheet."
         val topPanel = JPanel()
-        val clearButton = JButton("Clear")
+        val clearButton = JButton("Xóa nội dung")
         clearButton.addActionListener { textArea.text = "" }
         topPanel.add(clearButton)
 

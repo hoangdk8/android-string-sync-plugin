@@ -33,10 +33,10 @@ class ModuleSelectionPanel(
         override fun getColumnCount(): Int = 4
 
         override fun getColumnName(column: Int): String = when (column) {
-            0 -> "Use"
+            0 -> "Chọn"
             1 -> "Module"
-            2 -> "Res directories"
-            else -> "Existing locales"
+            2 -> "Thư mục res"
+            else -> "Ngôn ngữ hiện có"
         }
 
         override fun getColumnClass(columnIndex: Int): Class<*> = when (columnIndex) {
@@ -52,8 +52,17 @@ class ModuleSelectionPanel(
                 0 -> row.selected
                 1 -> row.target.moduleName
                 2 -> row.target.resDirectories.joinToString("; ")
-                else -> row.target.existingLocales.sorted().joinToString(", ")
+                else -> formatExistingLocales(row.target.existingLocales)
             }
+        }
+
+        private fun formatExistingLocales(locales: Set<String>): String {
+            if (locales.isEmpty()) return "-"
+            val sorted = locales.map { it.lowercase() }.distinct().sorted()
+            val previewCount = 8
+            val preview = sorted.take(previewCount).joinToString(", ")
+            val remaining = sorted.size - previewCount
+            return if (remaining > 0) "$preview ... (+$remaining ngôn ngữ)" else preview
         }
 
         override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
@@ -79,9 +88,9 @@ class ModuleSelectionPanel(
 
     init {
         val buttonPanel = JPanel()
-        val autoDetectButton = JButton("Auto-detect")
-        val deselectButton = JButton("Deselect all")
-        val removeAllButton = JButton("Remove all")
+        val autoDetectButton = JButton("Tự động quét")
+        val deselectButton = JButton("Bỏ chọn tất cả")
+        val removeAllButton = JButton("Xóa danh sách")
 
         autoDetectButton.addActionListener { onAutoDetect() }
         deselectButton.addActionListener { model.deselectAll() }

@@ -11,7 +11,7 @@ class StringSyncSettingsService : PersistentStateComponent<StringSyncSettingsSer
 
     data class State(
         var lastUrl: String = "",
-        var lastMode: String = "ADD_OR_UPDATE",
+        var lastMode: String = "UPDATE_ALL",
         var lastKeys: String = "",
         var lastSelectedLocales: String = ""
     )

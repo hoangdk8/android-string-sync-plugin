@@ -5,7 +5,7 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Android String Sync Plugin</name>
+    <name>Plugin Đồng Bộ String Android</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.atu.com">ATU</vendor>
@@ -13,7 +13,7 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Sync Android <code>strings.xml</code> from a Google Apps Script endpoint with preview and safe apply modes.
+        Đồng bộ <code>strings.xml</code> Android từ Google Apps Script, có xem trước và áp dụng an toàn.
     ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -24,8 +24,8 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.atu.tools.stringsync.services.StringSyncSettingsService"/>
-        <notificationGroup id="String Sync" displayType="BALLOON"/>
-        <toolWindow id="Localize"
+        <notificationGroup id="Đồng bộ String" displayType="BALLOON"/>
+        <toolWindow id="Thêm String"
                     icon="/META-INF/pluginIcon.svg"
                     anchor="right"
                     secondary="false"

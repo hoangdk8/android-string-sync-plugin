@@ -1,12 +1,13 @@
 package com.atu.tools.stringsync.model
 
-enum class ChangeAction {
-    ADD,
-    UPDATE,
-    SKIP_ALREADY_EXISTS,
-    SKIP_MISSING_IN_SHEET,
-    ERROR_INVALID_KEY,
-    ERROR_XML_INJECTION,
-    ERROR_PLACEHOLDER_MISMATCH,
-    ERROR_FILE
+enum class ChangeAction(val label: String) {
+    ADD("THÊM"),
+    UPDATE("CẬP NHẬT"),
+    SKIP_ALREADY_EXISTS("BỎ QUA: ĐÃ TỒN TẠI"),
+    SKIP_NOT_EXISTS_FOR_UPDATE("BỎ QUA: CHƯA TỒN TẠI ĐỂ CẬP NHẬT"),
+    SKIP_MISSING_IN_SHEET("BỎ QUA: SHEET THIẾU BẢN DỊCH"),
+    ERROR_INVALID_KEY("LỖI: KEY KHÔNG HỢP LỆ"),
+    ERROR_XML_INJECTION("LỖI: NGHI XML INJECTION"),
+    ERROR_PLACEHOLDER_MISMATCH("LỖI: SAI PLACEHOLDER"),
+    ERROR_FILE("LỖI FILE")
 }

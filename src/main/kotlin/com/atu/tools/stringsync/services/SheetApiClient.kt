@@ -12,15 +12,18 @@ import java.time.Duration
 
 class SheetApiClient {
     private val json = Json { ignoreUnknownKeys = true }
-    private val http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build()
+    private val http = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(20))
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build()
 
     fun fetch(url: String): SheetPayload {
         val request = HttpRequest.newBuilder(URI(url)).GET().timeout(Duration.ofSeconds(30)).build()
         val response = http.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() !in 200..299) {
-            error("HTTP ${response.statusCode()} while loading $url")
+            error("HTTP ${response.statusCode()} khi tải URL: $url")
         }
-        val root = json.parseToJsonElement(response.body()) as? JsonObject ?: error("Invalid JSON payload")
+        val root = json.parseToJsonElement(response.body()) as? JsonObject ?: error("Dữ liệu JSON không hợp lệ")
         val data = mutableMapOf<String, Map<String, String>>()
         for ((locale, value) in root) {
             val localeMap = value as? JsonObject ?: continue
@@ -29,7 +32,7 @@ class SheetApiClient {
                 if (primitive == null || !primitive.isString) null else key to primitive.content
             }.toMap()
         }
-        if (data.isEmpty()) error("Sheet payload is empty")
+        if (data.isEmpty()) error("Dữ liệu sheet trống")
         return SheetPayload(data)
     }
 }
