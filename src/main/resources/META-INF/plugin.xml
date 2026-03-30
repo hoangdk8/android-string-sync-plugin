@@ -13,8 +13,8 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Đồng bộ <code>strings.xml</code> Android từ Google Apps Script, có xem trước và áp dụng an toàn.
-    ]]></description>
+Sync Android <code>strings.xml</code> from Google Apps Script with preview and safe apply.
+]]></description>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
@@ -25,7 +25,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.atu.tools.stringsync.services.StringSyncSettingsService"/>
         <notificationGroup id="android.string.sync.notifications" displayType="BALLOON"/>
-        <toolWindow id="Thêm String"
+        <toolWindow id="String Sync"
                     icon="/META-INF/pluginIcon.svg"
                     anchor="right"
                     secondary="false"
