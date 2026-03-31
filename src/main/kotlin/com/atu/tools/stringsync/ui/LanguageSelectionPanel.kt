@@ -13,7 +13,8 @@ import javax.swing.table.AbstractTableModel
 import javax.swing.table.TableRowSorter
 
 class LanguageSelectionPanel(
-    private val onDetectExisting: () -> Unit
+    private val onDetectExisting: () -> Unit,
+    private val onSelectFromSheet: () -> Unit
 ) : JPanel(BorderLayout()) {
 
     private data class LanguageRow(
@@ -93,10 +94,12 @@ class LanguageSelectionPanel(
         val selectAllButton = JButton("Chọn tất cả")
         val deselectAllButton = JButton("Bỏ chọn tất cả")
         val detectExistingButton = JButton("Chọn theo hiện có")
+        val selectFromSheetButton = JButton("Chọn theo sheet")
 
         selectAllButton.addActionListener { model.selectAll() }
         deselectAllButton.addActionListener { model.deselectAll() }
         detectExistingButton.addActionListener { onDetectExisting() }
+        selectFromSheetButton.addActionListener { onSelectFromSheet() }
         showIsoCheck.addActionListener {
             model.setShowIso(showIsoCheck.isSelected)
         }
@@ -111,6 +114,7 @@ class LanguageSelectionPanel(
         topPanel.add(selectAllButton)
         topPanel.add(deselectAllButton)
         topPanel.add(detectExistingButton)
+        topPanel.add(selectFromSheetButton)
         topPanel.add(showIsoCheck)
 
         add(topPanel, BorderLayout.NORTH)

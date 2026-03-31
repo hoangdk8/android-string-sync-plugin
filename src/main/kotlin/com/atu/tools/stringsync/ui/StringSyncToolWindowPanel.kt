@@ -1,4 +1,4 @@
-package com.atu.tools.stringsync.ui
+﻿package com.atu.tools.stringsync.ui
 
 import com.atu.tools.stringsync.model.SheetPayload
 import com.atu.tools.stringsync.model.SyncMode
@@ -43,7 +43,10 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
     private val modeModel = DefaultComboBoxModel(SyncMode.entries.toTypedArray())
     private val modeCombo = javax.swing.JComboBox(modeModel)
     private val modulePanel = ModuleSelectionPanel { detectModules() }
-    private val languagePanel = LanguageSelectionPanel { detectExistingLocales() }
+    private val languagePanel = LanguageSelectionPanel(
+        onDetectExisting = { detectExistingLocales() },
+        onSelectFromSheet = { selectFromSheetLocales() }
+    )
     private val keysPanel = KeysInputPanel()
     private val errorLabel = JBLabel("")
 
@@ -66,11 +69,8 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
         urlRow.add(urlField, BorderLayout.CENTER)
 
         val sourceButtons = JPanel()
-        val testButton = JButton("Kiểm tra kết nối")
         val loadButton = JButton("Tải ngôn ngữ")
-        testButton.addActionListener { loadPayload(testOnly = true) }
-        loadButton.addActionListener { loadPayload(testOnly = false) }
-        sourceButtons.add(testButton)
+        loadButton.addActionListener { loadPayload() }
         sourceButtons.add(loadButton)
 
         sourcePanel.add(urlRow)
@@ -102,11 +102,8 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
 
         val bottom = JPanel(BorderLayout())
         val actions = JPanel()
-        val previewButton = JButton("Xem trước thay đổi")
         val applyButton = JButton("Áp dụng")
-        previewButton.addActionListener { runSync(previewOnly = true) }
-        applyButton.addActionListener { runSync(previewOnly = false) }
-        actions.add(previewButton)
+        applyButton.addActionListener { runSync() }
         actions.add(applyButton)
 
         errorLabel.foreground = JBColor.RED
@@ -145,7 +142,18 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
         languagePanel.setSelectedLocales(SupportedLanguages.defaultSelectedCodes(existing))
     }
 
-    private fun loadPayload(testOnly: Boolean) {
+    private fun selectFromSheetLocales() {
+        val localPayload = payload
+        if (localPayload == null) {
+            showError("Vui lòng tải ngôn ngữ từ sheet trước")
+            return
+        }
+        val selected = SupportedLanguages.selectedCodesFromSheetLocales(localPayload.locales())
+        languagePanel.setSelectedLocales(selected)
+        NotificationUtils.info(project, "Đồng bộ String", "Đã chọn ${selected.size} ngôn ngữ theo dữ liệu sheet.")
+    }
+
+    private fun loadPayload() {
         val url = urlField.text.trim()
         if (url.isBlank()) {
             showError("Vui lòng nhập URL")
@@ -164,7 +172,7 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
                     ApplicationManager.getApplication().invokeLater {
                         payload = loaded
                         settings.state.lastUrl = url
-                        if (!testOnly) detectExistingLocales()
+                        detectExistingLocales()
                         NotificationUtils.info(project, "Đồng bộ String", "Kết nối thành công. Đã tải ${loaded.locales().size} ngôn ngữ.")
                     }
                 } catch (t: Throwable) {
@@ -177,7 +185,7 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
         })
     }
 
-    private fun runSync(previewOnly: Boolean) {
+    private fun runSync() {
         val localPayload = payload
         if (localPayload == null) {
             showError("Vui lòng tải dữ liệu sheet trước")
@@ -216,22 +224,32 @@ class StringSyncToolWindowPanel(private val project: Project) : JPanel(BorderLay
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Đang đồng bộ string", true) {
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    val result = if (previewOnly) {
-                        syncService.preview(request)
-                    } else {
-                        var output: SyncResult? = null
-                        WriteCommandAction.runWriteCommandAction(project) {
-                            output = syncService.apply(request)
-                        }
-                        output ?: syncService.preview(request)
-                    }
+                    val previewResult = syncService.preview(request)
 
                     ApplicationManager.getApplication().invokeLater {
-                        PreviewChangesDialog(result.changes).show()
-                        val summary = "File thay đổi: ${result.filesChanged}, Thêm mới: ${result.keysAdded}, Cập nhật: ${result.keysUpdated}, Bỏ qua: ${result.skipped}, Lỗi: ${result.errors.size}"
-                        if (!previewOnly) {
-                            NotificationUtils.info(project, "Áp dụng đồng bộ thành công", summary)
-                        }
+                        val confirm = PreviewChangesDialog(previewResult.changes).showAndGet()
+                        if (!confirm) return@invokeLater
+
+                        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Đang áp dụng thay đổi", true) {
+                            override fun run(indicator: ProgressIndicator) {
+                                try {
+                                    var applied: SyncResult? = null
+                                    WriteCommandAction.runWriteCommandAction(project) {
+                                        applied = syncService.apply(request)
+                                    }
+                                    val result = applied ?: previewResult
+                                    ApplicationManager.getApplication().invokeLater {
+                                        val summary = "File thay đổi: ${result.filesChanged}, Thêm mới: ${result.keysAdded}, Cập nhật: ${result.keysUpdated}, Bỏ qua: ${result.skipped}, Lỗi: ${result.errors.size}"
+                                        NotificationUtils.info(project, "Áp dụng đồng bộ thành công", summary)
+                                    }
+                                } catch (t: Throwable) {
+                                    ApplicationManager.getApplication().invokeLater {
+                                        showError("Đồng bộ thất bại: ${t.message}")
+                                        NotificationUtils.error(project, "Đồng bộ String", "Đồng bộ thất bại: ${t.message}")
+                                    }
+                                }
+                            }
+                        })
                     }
                 } catch (t: Throwable) {
                     ApplicationManager.getApplication().invokeLater {

@@ -145,17 +145,60 @@ object SupportedLanguages {
     )
 
     fun defaultSelectedCodes(existingLocales: Set<String>): Set<String> {
-        val normalizedExisting = existingLocales.map { normalizeLocale(it) }.toSet()
-        return all.filter { option ->
-            val candidates = mutableSetOf<String>()
-            candidates.add(normalizeLocale(option.code))
-            candidates.add(normalizeLocale(option.code.substringBefore('-')))
-            option.aliases.forEach {
-                candidates.add(normalizeLocale(it))
-                candidates.add(normalizeLocale(it.substringBefore('-')))
+        return mapInputsToCodes(existingLocales)
+    }
+
+    fun selectedCodesFromSheetLocales(sheetLocales: Set<String>): Set<String> {
+        return mapInputsToCodes(sheetLocales)
+    }
+
+    private fun mapInputsToCodes(inputs: Set<String>): Set<String> {
+        val selected = linkedSetOf<String>()
+        for (raw in inputs) {
+            val normalized = normalizeLocale(raw)
+            val primary = normalized.substringBefore('-')
+
+            val exact = all.filter { option ->
+                optionFullKeys(option).contains(normalized)
             }
-            candidates.any { normalizedExisting.contains(it) }
-        }.map { it.code }.toSet()
+            if (exact.isNotEmpty()) {
+                selected += pickBest(exact, normalized, primary).code
+                continue
+            }
+
+            val byPrimary = all.filter { option ->
+                optionPrimaryKeys(option).contains(primary)
+            }
+            if (byPrimary.isNotEmpty()) {
+                selected += pickBest(byPrimary, normalized, primary).code
+            }
+        }
+        return selected
+    }
+
+    private fun pickBest(candidates: List<LanguageOption>, normalizedInput: String, primaryInput: String): LanguageOption {
+        return candidates.sortedWith(
+            compareBy<LanguageOption>(
+                { if (normalizeLocale(it.code) == normalizedInput) 0 else 1 },
+                { if (normalizeLocale(it.code) == primaryInput) 0 else 1 },
+                { if (it.name.contains("(legacy)", ignoreCase = true)) 1 else 0 },
+                { it.code.length }
+            )
+        ).first()
+    }
+
+    private fun optionFullKeys(option: LanguageOption): Set<String> {
+        val keys = linkedSetOf<String>()
+        keys += normalizeLocale(option.code)
+        option.aliases.forEach { keys += normalizeLocale(it) }
+        return keys
+    }
+
+    private fun optionPrimaryKeys(option: LanguageOption): Set<String> {
+        val keys = linkedSetOf<String>()
+        keys += normalizeLocale(option.code).substringBefore('-')
+        option.aliases.forEach { keys += normalizeLocale(it).substringBefore('-') }
+        return keys
     }
 
     fun normalizeLocale(input: String): String {
