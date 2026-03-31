@@ -13,7 +13,49 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-Sync Android <code>strings.xml</code> from Google Apps Script with preview and safe apply.
+<p>Sau khi cài plugin, hãy mở project Android của bạn trong IDE (Android Studio / IntelliJ IDEA).</p>
+
+<ol>
+  <li>Mở <b>String Sync</b> (Tool Window) trong IDE.</li>
+  <li>Dán <b>Google Apps Script Web App URL</b> (phải kết thúc bằng <code>/exec</code>).</li>
+  <li>Chọn module Android cần sync.</li>
+  <li>Chọn các ngôn ngữ cần thêm (plugin có thể tự detect từ thư mục <code>res/values*</code>).</li>
+  <li>Chọn chế độ sync:
+    <ul>
+      <li><b>Add all</b> – thêm hoặc cập nhật tất cả key</li>
+      <li><b>Add missing only</b> – chỉ thêm key chưa tồn tại</li>
+      <li><b>Selected keys</b> – chỉ sync các key được nhập</li>
+    </ul>
+  </li>
+  <li>Xem trước (preview) và áp dụng thay đổi vào <code>strings.xml</code>.</li>
+</ol>
+
+<h3>📌 Cách lấy Google Apps Script Web App URL</h3>
+
+<ol>
+  <li>Mở Google Sheet chứa dữ liệu string của bạn</li>
+  <li>Vào menu <b>Extensions → Apps Script</b></li>
+  <li>Trong Apps Script:
+    <ul>
+      <li>Nhấn <b>Deploy → New deployment</b></li>
+      <li>Chọn loại <b>Web app</b></li>
+      <li><b>Execute as:</b> Me</li>
+      <li><b>Who has access:</b> Anyone</li>
+    </ul>
+  </li>
+  <li>Nhấn <b>Deploy</b></li>
+  <li>Copy URL được cung cấp, dạng:</li>
+</ol>
+
+<pre>https://script.google.com/macros/s/AKfycbxxxxxxx/exec</pre>
+
+<p><b>⚠ Lưu ý:</b> URL bắt buộc phải kết thúc bằng <code>/exec</code>, nếu không plugin sẽ không hoạt động.</p>
+
+<h3>🔒 Lưu ý</h3>
+<ul>
+  <li>Plugin sẽ kiểm tra format XML trước khi ghi vào project</li>
+  <li>Đảm bảo placeholder (%s, %d, ...) giống nhau giữa các ngôn ngữ</li>
+</ul>
 ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -26,7 +68,7 @@ Sync Android <code>strings.xml</code> from Google Apps Script with preview and s
         <projectService serviceImplementation="com.atu.tools.stringsync.services.StringSyncSettingsService"/>
         <notificationGroup id="android.string.sync.notifications" displayType="BALLOON"/>
         <toolWindow id="String Sync"
-                    icon="/META-INF/pluginIcon.svg"
+                    icon="/icons/tablinToolWindow.svg"
                     anchor="right"
                     secondary="false"
                     factoryClass="com.atu.tools.stringsync.toolwindow.StringSyncToolWindowFactory"/>
