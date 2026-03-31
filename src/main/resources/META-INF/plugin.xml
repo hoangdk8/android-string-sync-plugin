@@ -13,6 +13,8 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
+Android String Sync plugin helps you sync Android strings.xml files from Google Apps Script with preview and safe apply modes.
+
 <p>Sau khi cài plugin, hãy mở project Android của bạn trong IDE (Android Studio / IntelliJ IDEA).</p>
 
 <ol>
