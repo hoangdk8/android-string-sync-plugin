@@ -13,7 +13,7 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-<p><b>Android String Sync</b> giúp bạn đồng bộ file <code>strings.xml</code> từ Google Sheet thông qua Google Apps Script.</p>
+<p><b>Android String Sync</b> helps Android teams synchronize <code>strings.xml</code> files directly from Google Sheets through Google Apps Script.</p>
 
 <h3>🚀 Setup lần đầu</h3>
 
