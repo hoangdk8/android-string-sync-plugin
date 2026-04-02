@@ -6,7 +6,7 @@ plugins {
 //build dev: ./gradlew buildPlugin
 //build update plugin: ./gradlew publishPlugin
 group = "com.atu.tools"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()

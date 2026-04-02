@@ -13,49 +13,83 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-Android String Sync plugin helps you sync Android strings.xml files from Google Apps Script with preview and safe apply modes.
+<p><b>Android String Sync</b> giúp bạn đồng bộ file <code>strings.xml</code> từ Google Sheet thông qua Google Apps Script.</p>
 
-<p>Sau khi cài plugin, hãy mở project Android của bạn trong IDE (Android Studio / IntelliJ IDEA).</p>
+<h3>🚀 Setup lần đầu</h3>
 
 <ol>
-  <li>Mở <b>String Sync</b> (Tool Window) trong IDE.</li>
-  <li>Dán <b>Google Apps Script Web App URL</b> (phải kết thúc bằng <code>/exec</code>).</li>
-  <li>Chọn module Android cần sync.</li>
-  <li>Chọn các ngôn ngữ cần thêm (plugin có thể tự detect từ thư mục <code>res/values*</code>).</li>
-  <li>Chọn chế độ sync:
+  <li>Mở Google Sheet mẫu:
+    <br/>
+    <a href="https://docs.google.com/spreadsheets/d/1wmoz4IUIneAHsHP_XZQF_9_jp7UmXiIAizt_c7tvgWA/edit?usp=sharing">
+      Google Sheet Template
+    </a>
+  </li>
+
+  <li>Chọn <b>File → Make a copy</b> (Tạo bản sao)</li>
+
+  <li>Đặt tên theo project của bạn (ví dụ: <code>MyApp Strings</code>)</li>
+
+  <li>Trong sheet này bạn có các chức năng hỗ trợ:
+    <ul>
+      <li><b>Verify All Strings</b> – kiểm tra format và placeholder</li>
+      <li><b>Translate ALL</b> – dịch toàn bộ string từ tiếng Anh</li>
+      <li><b>Translate EMPTY ONLY</b> – chỉ dịch các string chưa có dữ liệu</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>⚙️ Sử dụng plugin</h3>
+
+<ol>
+  <li>Mở project Android trong IDE (Android Studio / IntelliJ IDEA)</li>
+
+  <li>Mở <b>String Sync</b> (Tool Window)</li>
+
+  <li>Dán <b>Google Apps Script Web App URL</b> (phải kết thúc bằng <code>/exec</code>)</li>
+
+  <li>Chọn module Android cần sync</li>
+
+  <li>Chọn ngôn ngữ (plugin có thể tự detect từ <code>res/values*</code>)</li>
+
+  <li>Chọn chế độ:
     <ul>
       <li><b>Add all</b> – thêm hoặc cập nhật tất cả key</li>
       <li><b>Add missing only</b> – chỉ thêm key chưa tồn tại</li>
       <li><b>Selected keys</b> – chỉ sync các key được nhập</li>
     </ul>
   </li>
-  <li>Xem trước (preview) và áp dụng thay đổi vào <code>strings.xml</code>.</li>
+
+  <li>Xem trước (preview) và áp dụng vào <code>strings.xml</code></li>
 </ol>
 
 <h3>📌 Cách lấy Google Apps Script Web App URL</h3>
 
 <ol>
-  <li>Mở Google Sheet chứa dữ liệu string của bạn</li>
-  <li>Vào menu <b>Extensions → Apps Script</b></li>
+  <li>Mở Google Sheet của bạn</li>
+
+  <li>Vào <b>Extensions → Apps Script</b></li>
+
   <li>Trong Apps Script:
     <ul>
       <li>Nhấn <b>Deploy → New deployment</b></li>
-      <li>Chọn loại <b>Web app</b></li>
+      <li>Chọn <b>Web app</b></li>
       <li><b>Execute as:</b> Me</li>
       <li><b>Who has access:</b> Anyone</li>
     </ul>
   </li>
+
   <li>Nhấn <b>Deploy</b></li>
-  <li>Copy URL được cung cấp, dạng:</li>
+
+  <li>Copy URL dạng:</li>
 </ol>
 
 <pre>https://script.google.com/macros/s/AKfycbxxxxxxx/exec</pre>
 
-<p><b>⚠ Lưu ý:</b> URL bắt buộc phải kết thúc bằng <code>/exec</code>, nếu không plugin sẽ không hoạt động.</p>
+<p><b>⚠ Lưu ý:</b> URL bắt buộc phải kết thúc bằng <code>/exec</code></p>
 
 <h3>🔒 Lưu ý</h3>
 <ul>
-  <li>Plugin sẽ kiểm tra format XML trước khi ghi vào project</li>
+  <li>Plugin sẽ validate XML trước khi ghi</li>
   <li>Đảm bảo placeholder (%s, %d, ...) giống nhau giữa các ngôn ngữ</li>
 </ul>
 ]]></description>
