@@ -9,7 +9,8 @@ import javax.swing.JTable
 import javax.swing.table.AbstractTableModel
 
 class ModuleSelectionPanel(
-    private val onAutoDetect: () -> Unit
+    private val onAutoDetect: () -> Unit,
+    private val onSelectionChanged: (Set<String>) -> Unit
 ) : JPanel(BorderLayout()) {
 
     private data class ModuleRow(
@@ -17,16 +18,23 @@ class ModuleSelectionPanel(
         val target: ModuleTarget
     )
 
-    private class Model : AbstractTableModel() {
+    private class Model(private val onSelectionChanged: (Set<String>) -> Unit) : AbstractTableModel() {
         private val rows = mutableListOf<ModuleRow>()
 
         fun setRows(items: List<ModuleTarget>) {
             rows.clear()
-            rows += items.map { ModuleRow(selected = true, target = it) }
+            rows += items.map { ModuleRow(selected = false, target = it) }
             fireTableDataChanged()
+            notifySelectionChanged()
         }
 
         fun selectedModules(): List<ModuleTarget> = rows.filter { it.selected }.map { it.target }
+
+        fun setSelectedByNames(moduleNames: Set<String>) {
+            rows.forEach { it.selected = moduleNames.contains(it.target.moduleName) }
+            fireTableDataChanged()
+            notifySelectionChanged()
+        }
 
         override fun getRowCount(): Int = rows.size
 
@@ -69,21 +77,28 @@ class ModuleSelectionPanel(
             if (columnIndex == 0 && aValue is Boolean) {
                 rows[rowIndex].selected = aValue
                 fireTableCellUpdated(rowIndex, columnIndex)
+                notifySelectionChanged()
             }
         }
 
         fun deselectAll() {
             rows.forEach { it.selected = false }
             fireTableDataChanged()
+            notifySelectionChanged()
         }
 
         fun clearAll() {
             rows.clear()
             fireTableDataChanged()
+            notifySelectionChanged()
+        }
+
+        private fun notifySelectionChanged() {
+            onSelectionChanged(selectedModules().map { it.moduleName }.toSet())
         }
     }
 
-    private val model = Model()
+    private val model = Model(onSelectionChanged)
     private val table = JTable(model)
 
     init {
@@ -105,6 +120,8 @@ class ModuleSelectionPanel(
     }
 
     fun setModules(modules: List<ModuleTarget>) = model.setRows(modules)
+
+    fun setSelectedModuleNames(moduleNames: Set<String>) = model.setSelectedByNames(moduleNames)
 
     fun selectedModules(): List<ModuleTarget> = model.selectedModules()
 

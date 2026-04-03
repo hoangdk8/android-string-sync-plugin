@@ -42,7 +42,12 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
     private val urlField = JBTextField(settings.state.lastUrl)
     private val modeModel = DefaultComboBoxModel(SyncMode.entries.toTypedArray())
     private val modeCombo = javax.swing.JComboBox(modeModel)
-    private val modulePanel = ModuleSelectionPanel { detectModules() }
+    private val modulePanel = ModuleSelectionPanel(
+        onAutoDetect = { detectModules() },
+        onSelectionChanged = { selected ->
+            settings.state.lastSelectedModules = selected.joinToString(",")
+        }
+    )
     private val languagePanel = LanguageSelectionPanel(
         onDetectExisting = { detectExistingLocales() },
         onSelectFromSheet = { selectFromSheetLocales() }
@@ -134,6 +139,14 @@ class StringSyncDialog(private val project: Project) : DialogWrapper(project) {
     private fun detectModules() {
         val modules = scanner.scan(project)
         modulePanel.setModules(modules)
+        val remembered = settings.state.lastSelectedModules
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .toSet()
+        if (remembered.isNotEmpty()) {
+            modulePanel.setSelectedModuleNames(remembered)
+        }
     }
 
     private fun detectExistingLocales() {

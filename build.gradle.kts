@@ -6,7 +6,7 @@ plugins {
 //build dev: ./gradlew buildPlugin
 //build update plugin: ./gradlew publishPlugin
 group = "com.atu.tools"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     mavenCentral()
@@ -36,15 +36,9 @@ intellijPlatform {
         }
 
         changeNotes = """
-            <h3>1.0.4</h3>
+            <h3>1.0.5</h3>
             <ul>
-              <li>Thêm Tool Window với icon nhỏ và giao diện tiếng Việt dễ dùng hơn.</li>
-              <li>Bổ sung 4 chế độ sync rõ ràng: Add all, Add missing, Update all, Update changed.</li>
-              <li>Thêm nút chọn ngôn ngữ theo dữ liệu sheet (auto map locale như en-US, vi-VN, hi-IN...).</li>
-              <li>Sửa luồng Apply: chỉ ghi file sau khi bạn xác nhận ở màn hình preview.</li>
-              <li>Sửa logic ghi file để không replace toàn bộ nội dung cũ; chỉ chèn/cập nhật key cần thiết.</li>
-              <li>Sửa escape ký tự để tránh lỗi build Android: hỗ trợ dấu nháy đơn và chuyển nháy kép sang ngoặc kép Unicode.</li>
-              <li>Cải thiện xử lý fallback bản dịch theo default strings/base locale và validate placeholder.</li>
+              <li>Lưu lựa chọn module theo từng project/workspace; không còn tự chọn toàn bộ module khi mở plugin.</li>
             </ul>
         """.trimIndent()
     }
