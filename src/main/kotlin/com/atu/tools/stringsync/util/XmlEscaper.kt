@@ -2,12 +2,26 @@ package com.atu.tools.stringsync.util
 
 object XmlEscaper {
     fun escape(value: String): String {
-        return value
+        val normalizedQuotes = convertAsciiDoubleQuotesToUnicode(value)
+        return normalizedQuotes
             .replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
-            .replace("\"", "&quot;")
             .let(::escapeUnescapedApostrophes)
+    }
+
+    private fun convertAsciiDoubleQuotesToUnicode(value: String): String {
+        val out = StringBuilder(value.length)
+        var opening = true
+        for (c in value) {
+            if (c == '"') {
+                out.append(if (opening) '“' else '”')
+                opening = !opening
+            } else {
+                out.append(c)
+            }
+        }
+        return out.toString()
     }
 
     private fun escapeUnescapedApostrophes(value: String): String {
