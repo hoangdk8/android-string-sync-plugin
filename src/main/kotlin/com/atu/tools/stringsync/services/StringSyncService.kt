@@ -16,7 +16,7 @@ class StringSyncService(
     private val parser: StringXmlParser = StringXmlParser(),
     private val writer: StringXmlWriter = StringXmlWriter()
 ) {
-    private val keyRegex = Regex("^[a-z0-9_]+$")
+    private val keyRegex = Regex("^[A-Za-z0-9_]+$")
 
     fun preview(request: SyncRequest): SyncResult {
         val baseLocale = request.payload.baseLocale()
@@ -43,7 +43,7 @@ class StringSyncService(
                             key = key,
                             action = ChangeAction.ERROR_INVALID_KEY,
                             filePath = targetFile.toString(),
-                            message = "Key phải đúng định dạng ^[a-z0-9_]+$"
+                            message = "Key phải đúng định dạng ^[A-Za-z0-9_]+$"
                         )
                         continue
                     }
@@ -85,7 +85,15 @@ class StringSyncService(
                         continue
                     }
 
-                    if (baseValue != null && !PlaceholderValidator.isCompatible(baseValue, newValue)) {
+                    val basePlaceholders = baseValue?.let(PlaceholderValidator::placeholders).orEmpty()
+                    val newPlaceholders = PlaceholderValidator.placeholders(newValue)
+                    val placeholderNote = if (basePlaceholders.isEmpty() && newPlaceholders.isNotEmpty()) {
+                        "Cảnh báo: bản dịch mới có placeholder, nhưng giá trị gốc không có. Chỉ ghi chú, không chặn."
+                    } else {
+                        null
+                    }
+
+                    if (basePlaceholders.isNotEmpty() && basePlaceholders != newPlaceholders) {
                         changes += FileChangePreview(
                             moduleName = module.moduleName,
                             locale = locale,
@@ -125,7 +133,7 @@ class StringSyncService(
                         oldValue = oldValue,
                         newValue = newValue,
                         filePath = targetFile.toString(),
-                        message = fallbackMessage
+                        message = listOfNotNull(fallbackMessage, placeholderNote).joinToString(" ").ifBlank { null }
                     )
                 }
             }

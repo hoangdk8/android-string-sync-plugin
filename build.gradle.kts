@@ -6,7 +6,7 @@ plugins {
 //build dev: ./gradlew buildPlugin
 //build update plugin: ./gradlew publishPlugin
 group = "com.atu.tools"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
     mavenCentral()
@@ -36,9 +36,12 @@ intellijPlatform {
         }
 
         changeNotes = """
-            <h3>1.0.5</h3>
+            <h3>1.0.6</h3>
             <ul>
-              <li>Lưu lựa chọn module theo từng project/workspace; không còn tự chọn toàn bộ module khi mở plugin.</li>
+              <li>Thêm bộ lọc trong màn preview theo Module, Ngôn ngữ, Hành động, File và Ghi chú.</li>
+              <li>Thêm ô tìm kiếm từ khóa để lọc nhanh dữ liệu preview.</li>
+              <li>Cho phép key chứa cả chữ in hoa, chữ thường, số và dấu gạch dưới.</li>
+              <li>Trường hợp placeholder mới chỉ được ghi chú, không còn bị chặn như lỗi.</li>
             </ul>
         """.trimIndent()
     }
